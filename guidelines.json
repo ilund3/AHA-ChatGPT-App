@@ -1,0 +1,58 @@
+[
+  {
+    "id": "aha-001",
+    "title": "2024 AHA/ACC/HFSA Heart Failure Guideline",
+    "content": "The 2024 AHA/ACC/HFSA Heart Failure Guideline provides comprehensive recommendations for the prevention, diagnosis, and management of heart failure. Key recommendations include: (1) Use of SGLT2 inhibitors in patients with heart failure with reduced ejection fraction (HFrEF) regardless of diabetes status, (2) Angiotensin receptor-neprilysin inhibitor (ARNI) as preferred therapy over ACE inhibitors or ARBs in appropriate patients, (3) Beta-blockers should be initiated and titrated in all patients with HFrEF, (4) Mineralocorticoid receptor antagonists are recommended in patients with HFrEF who remain symptomatic despite optimal therapy.",
+    "category": "Heart Failure",
+    "year": 2024,
+    "source": "AHA/ACC/HFSA",
+    "keywords": ["heart failure", "HFrEF", "SGLT2", "ARNI", "beta-blockers"]
+  },
+  {
+    "id": "aha-002",
+    "title": "2023 AHA/ACC/ACCP/HRS Atrial Fibrillation Guideline",
+    "content": "The 2023 AHA/ACC/ACCP/HRS Atrial Fibrillation Guideline recommends: (1) Anticoagulation therapy for stroke prevention in patients with AFib and CHA2DS2-VASc score ≥2 in men or ≥3 in women, (2) Rate control with beta-blockers, calcium channel blockers, or digoxin for symptomatic patients, (3) Rhythm control with antiarrhythmic drugs or catheter ablation for patients with symptomatic AFib, (4) Lifestyle modifications including weight loss, management of sleep apnea, and reduction of alcohol intake.",
+    "category": "Arrhythmias",
+    "year": 2023,
+    "source": "AHA/ACC/ACCP/HRS",
+    "keywords": ["atrial fibrillation", "AFib", "anticoagulation", "stroke prevention", "CHA2DS2-VASc"]
+  },
+  {
+    "id": "aha-003",
+    "title": "2023 AHA/ACC/ACCP/HRS Supraventricular Tachycardia Guideline",
+    "content": "Management of supraventricular tachycardia (SVT) includes: (1) Vagal maneuvers as first-line treatment for stable patients, (2) Adenosine for acute termination of SVT, (3) Beta-blockers or calcium channel blockers for long-term management, (4) Catheter ablation for recurrent symptomatic SVT or when medications are ineffective or not tolerated.",
+    "category": "Arrhythmias",
+    "year": 2023,
+    "source": "AHA/ACC/ACCP/HRS",
+    "keywords": ["SVT", "supraventricular tachycardia", "adenosine", "vagal maneuvers", "catheter ablation"]
+  },
+  {
+    "id": "aha-004",
+    "title": "2023 AHA/ACC/ACCP/HRS Ventricular Arrhythmias and Sudden Cardiac Death Guideline",
+    "content": "Key recommendations for ventricular arrhythmias: (1) Implantable cardioverter-defibrillator (ICD) therapy for primary prevention in patients with reduced ejection fraction (≤35%) and heart failure, (2) Beta-blockers for all patients with structural heart disease and ventricular arrhythmias, (3) Catheter ablation for recurrent ventricular tachycardia, (4) Genetic testing for inherited arrhythmia syndromes in appropriate patients.",
+    "category": "Arrhythmias",
+    "year": 2023,
+    "source": "AHA/ACC/ACCP/HRS",
+    "keywords": ["ventricular arrhythmia", "ICD", "sudden cardiac death", "VT", "genetic testing"]
+  },
+  {
+    "id": "aha-005",
+    "title": "2021 AHA/ACC/ASE/CHEST/SAEM/SCCT/SCMR Chest Pain Guideline",
+    "content": "The 2021 Chest Pain Guideline emphasizes: (1) High-sensitivity troponin testing for rapid evaluation of acute chest pain, (2) Risk stratification using validated clinical decision pathways, (3) Coronary CT angiography as an alternative to stress testing in low-to-intermediate risk patients, (4) Focus on patient-centered care and shared decision-making.",
+    "category": "Chest Pain",
+    "year": 2021,
+    "source": "AHA/ACC/ASE/CHEST/SAEM/SCCT/SCMR",
+    "keywords": ["chest pain", "troponin", "coronary CT", "risk stratification", "acute coronary syndrome"]
+  },
+  {
+    "id": "aha-006",
+    "title": "2023 AHA/ACC/ACCP/HRS Bradycardia and Cardiac Conduction Delay Guideline",
+    "content": "Management of bradycardia includes: (1) Permanent pacemaker implantation for symptomatic bradycardia or high-grade AV block, (2) Evaluation for reversible causes before pacemaker placement, (3) Dual-chamber pacing preferred over single-chamber when AV conduction is impaired, (4) Cardiac resynchronization therapy (CRT) in patients with heart failure and left bundle branch block.",
+    "category": "Arrhythmias",
+    "year": 2023,
+    "source": "AHA/ACC/ACCP/HRS",
+    "keywords": ["bradycardia", "pacemaker", "AV block", "conduction delay", "CRT"]
+  }
+]
+
+
