@@ -108,3 +108,5 @@ All responses will be based solely on documents in the server's knowledge base.
 - The search algorithm is basic; enhance with vector embeddings for better results
 
 
+
+
