@@ -45,6 +45,8 @@ A ChatGPT app for the American Heart Association that provides access to AHA gui
 4. Name it "AHA Guidelines" and provide a description
 5. Click **Create**
 
+**Note:** The app is configured to appear under the prompt bar as a native ChatGPT app (using `ui://app/` resource). After connecting, you should see "AHA Guidelines" appear as an app option that you can open directly, not just as a tool that gets triggered automatically.
+
 ## Adding Documents
 
 The server comes with sample AHA documents. To add your own documents:
@@ -79,8 +81,10 @@ The current implementation uses an in-memory document store with simple text-bas
 ```
 AHA-ChatGPT-App/
 ├── public/
-│   └── aha-widget.html    # Web component UI
+│   ├── aha-widget.html    # Web component UI
+│   └── aha-logo.svg       # AHA logo/emblem for widget
 ├── server.js              # MCP server with document storage
+├── guidelines.json        # AHA guidelines data (optional, uses sample if missing)
 ├── package.json           # Dependencies
 └── README.md             # This file
 ```
@@ -97,7 +101,40 @@ All responses will be based solely on documents in the server's knowledge base.
 
 ## Development
 
-- **Watch mode**: `npm run dev` (requires Node.js with --watch flag support)
+### Updating the Widget After Making Changes
+
+The server automatically reloads widget files (HTML, logo, etc.) on each request, so you typically **don't need to restart** for widget changes:
+
+**No Restart Required For:**
+- ✅ Changes to `public/aha-widget.html` (widget UI/styling)
+- ✅ Changes to `public/aha-logo.svg` (logo/emblem)
+- ✅ Changes to `guidelines.json` (document data)
+
+These changes will be picked up automatically on the next request to ChatGPT.
+
+**Restart Required For:**
+- 🔄 Changes to `server.js` (server logic, tool configuration)
+- 🔄 Adding new dependencies in `package.json`
+
+**To Restart the Server:**
+```bash
+# If running normally, stop and restart:
+npm start
+
+# Or use watch mode for auto-restart on server.js changes:
+npm run dev
+```
+
+**Refreshing in ChatGPT:**
+After making changes:
+1. If you changed widget HTML/logo: Just trigger the tool again in ChatGPT (it will use the updated files)
+2. If you changed server.js: Restart the server, then ChatGPT should pick up changes on the next tool call
+3. If the widget seems cached: Try closing and reopening the ChatGPT chat or refreshing the page
+
+### Development Commands
+
+- **Watch mode**: `npm run dev` (auto-restarts on `server.js` changes, requires Node.js with --watch flag support)
+- **Normal mode**: `npm start` (manual restart needed)
 - **Port**: Set `PORT` environment variable to change the server port (default: 8787)
 
 ## Notes

@@ -5,309 +5,1734 @@
     <title>AHA Guidelines</title>
     <style>
       :root {
+        --aha-red: #c8102e;
+        --aha-red-dark: #a00d26;
+        --aha-red-light: #f5e6e8;
+        --white: #ffffff;
+        --gray-light: #f8f9fa;
+        --gray-medium: #e9ecef;
+        --gray-text: #495057;
+        --gray-text-light: #6c757d;
         color: #0b0b0f;
         font-family: "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
       }
 
       html,
       body {
         width: 100%;
         min-height: 100%;
-        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
       body {
-        margin: 0;
-        padding: 16px;
-        background: #f6f8fb;
+        background: var(--white);
+        padding: 0;
       }
 
-      main {
-        width: 100%;
-        max-width: 600px;
-        min-height: 300px;
-        margin: 0 auto;
-        background: #fff;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-      }
-
-      h2 {
-        margin: 0 0 20px;
-        font-size: 1.5rem;
-        color: #c8102e;
-        font-weight: 700;
-      }
-
-      .search-container {
-        margin-bottom: 20px;
-      }
-
-      form {
+      .app-container {
         display: flex;
-        gap: 8px;
-        margin-bottom: 16px;
+        width: 100%;
+        min-height: 100vh;
+        background: var(--white);
       }
 
-      form input {
+      .main-content {
         flex: 1;
-        padding: 12px 16px;
-        border-radius: 10px;
-        border: 1px solid #cad3e0;
+        display: flex;
+        flex-direction: column;
+        background: var(--white);
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+      }
+
+      .chat-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .chat-input-container {
+        padding: 16px 24px;
+        border-top: 1px solid var(--gray-medium);
+        background: var(--white);
+        flex-shrink: 0;
+      }
+
+      .header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--gray-medium);
+        background: var(--white);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+        z-index: 1000;
+      }
+      
+      .search-container {
+        display: none; /* Hide search bar - using chat input instead */
+      }
+
+      /* Chat Message Styles */
+      .chat-message {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        animation: fadeIn 0.3s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .chat-message.user {
+        justify-content: flex-end;
+      }
+
+      .chat-message.assistant {
+        justify-content: flex-start;
+      }
+
+      .message-bubble {
+        max-width: 75%;
+        padding: 16px 20px;
+        border-radius: 18px;
+        line-height: 1.6;
+        word-wrap: break-word;
+      }
+
+      .chat-message.user .message-bubble {
+        background: var(--aha-red);
+        color: white;
+        border-bottom-right-radius: 4px;
+      }
+
+      .chat-message.assistant .message-bubble {
+        background: var(--gray-light);
+        color: var(--gray-text);
+        border-bottom-left-radius: 4px;
+      }
+
+      .message-content {
         font-size: 0.95rem;
       }
 
-      form button {
+      .message-content p {
+        margin: 0 0 12px 0;
+      }
+
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Chat Input */
+      .chat-input-form {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .chat-input-form input {
+        flex: 1;
+        padding: 14px 18px;
+        border-radius: 24px;
+        border: 1px solid var(--gray-medium);
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .chat-input-form input:focus {
+        outline: none;
+        border-color: var(--aha-red);
+        box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
+      }
+
+      .chat-input-form button {
         border: none;
-        border-radius: 10px;
-        background: #c8102e;
+        border-radius: 50%;
+        background: var(--aha-red);
         color: white;
-        font-weight: 600;
-        padding: 0 20px;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: background 0.2s, transform 0.1s;
+        font-size: 1.2rem;
+        flex-shrink: 0;
       }
 
-      form button:hover {
-        background: #a00d26;
+      .chat-input-form button:hover {
+        background: var(--aha-red-dark);
+        transform: scale(1.05);
       }
 
-      form button:disabled {
+      .chat-input-form button:disabled {
         background: #ccc;
         cursor: not-allowed;
+        transform: none;
+      }
+
+      .query-display {
+        font-size: 1.25rem;
+        color: var(--gray-text);
+        margin-bottom: 32px;
+        padding-top: 8px;
+        display: none;
+        font-weight: 500;
+      }
+
+      .query-display.show {
+        display: block;
+      }
+
+      .aha-logo-corner {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 50px;
+        height: auto;
+        z-index: 100;
+        opacity: 0.6;
+      }
+      
+      @media (max-width: 768px) {
+        .aha-logo-corner {
+          width: 40px;
+          top: 16px;
+          right: 16px;
+        }
+      }
+
+      .aha-logo-corner img {
+        width: 100%;
+        height: auto;
       }
 
       .results-container {
-        margin-top: 20px;
+        margin-top: 0;
+      }
+
+
+      .chat-response {
+        color: var(--gray-text);
+        line-height: 1.8;
+        font-size: 1rem;
+        margin-bottom: 24px;
+      }
+
+      .chat-response p {
+        margin-bottom: 16px;
+      }
+
+      .chat-response p:last-child {
+        margin-bottom: 0;
       }
 
       .result-item {
-        background: #f2f4fb;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-        border-left: 4px solid #c8102e;
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--gray-medium);
       }
 
-      .result-title {
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #0b0b0f;
-        font-size: 1rem;
+      .result-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
       }
 
       .result-content {
-        color: #4a5568;
-        line-height: 1.6;
-        font-size: 0.9rem;
+        color: var(--gray-text);
+        line-height: 1.8;
+        font-size: 1rem;
+        margin-bottom: 12px;
       }
 
       .result-source {
-        margin-top: 8px;
+        margin-top: 12px;
         font-size: 0.85rem;
-        color: #6c768a;
+        color: var(--gray-text-light);
         font-style: italic;
+      }
+
+      /* ChatGPT Response Display */
+      .ai-response {
+        background: var(--white);
+        border: 2px solid var(--aha-red-light);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        line-height: 1.8;
+        font-size: 1rem;
+        color: var(--gray-text);
+      }
+
+      .ai-response p {
+        margin: 0 0 16px 0;
+      }
+
+      .ai-response p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Citation Bubbles */
+      .citation-bubble {
+        display: inline-block;
+        background: var(--aha-red);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 0 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        vertical-align: middle;
+      }
+
+      .citation-bubble:hover {
+        background: var(--aha-red-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(200, 16, 46, 0.3);
+      }
+
+      .citations-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid var(--aha-red-light);
+      }
+
+      .citations-title {
+        font-weight: 600;
+        color: var(--aha-red);
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .citation-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
       }
 
       .loading {
         text-align: center;
-        padding: 20px;
-        color: #6c768a;
+        padding: 40px 20px;
+        color: var(--gray-text-light);
+      }
+
+      .loading::after {
+        content: "...";
+        animation: dots 1.5s steps(4, end) infinite;
+      }
+
+      @keyframes dots {
+        0%, 20% { content: "."; }
+        40% { content: ".."; }
+        60%, 100% { content: "..."; }
       }
 
       .empty-state {
         text-align: center;
-        padding: 40px 20px;
-        color: #6c768a;
+        padding: 60px 20px;
+        color: var(--gray-text-light);
       }
 
       .empty-state p {
         margin: 8px 0;
+        font-size: 1rem;
       }
 
-      .query-display {
-        background: #e8f0fe;
-        border-radius: 8px;
-        padding: 12px;
+      .empty-state .empty-icon {
+        font-size: 3rem;
         margin-bottom: 16px;
-        font-size: 0.9rem;
-        color: #0b0b0f;
+        opacity: 0.5;
       }
 
-      .query-display strong {
-        color: #c8102e;
+      /* Sidebar Toggle Button */
+      .sidebar-toggle {
+        background: var(--aha-red);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 10001;
+        pointer-events: auto !important;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      .sidebar-toggle:hover {
+        background: var(--aha-red-dark);
+      }
+
+      /* Sidebar Styles */
+      .sidebar {
+        width: 320px;
+        background: var(--aha-red);
+        color: white;
+        padding: 32px 24px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        overflow-y: auto;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+      }
+
+      .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .sidebar-header {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .sidebar-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0 0 8px;
+      }
+
+      .sidebar-subtitle {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      .sidebar-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .sidebar-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 18px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+      }
+
+      .sidebar-item:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(4px);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .sidebar-item.active {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+
+      .sidebar-item-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+      }
+
+      .sidebar-item-title {
+        font-weight: 600;
+        font-size: 1rem;
+        margin: 0 0 4px;
+      }
+
+      .sidebar-item-desc {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        margin: 0;
+      }
+
+      /* Product Catalog Styles */
+      .store-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .store-header {
+        margin-bottom: 32px;
+      }
+
+      .store-title {
+        color: var(--aha-red);
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+      }
+
+      .store-subtitle {
+        color: var(--gray-text);
+        font-size: 1rem;
+        margin: 0;
+      }
+
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+
+      .product-card {
+        background: var(--white);
+        border: 1px solid var(--gray-medium);
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(200, 16, 46, 0.15);
+        border-color: var(--aha-red);
+      }
+
+      .product-image-container {
+        width: 100%;
+        height: 220px;
+        background: var(--gray-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 16px;
+      }
+
+      .product-info {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .product-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--gray-text);
+        margin: 0 0 12px 0;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.8em;
+      }
+
+      .product-price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--aha-red);
+        margin-top: auto;
+      }
+
+      .product-price-label {
+        font-size: 0.75rem;
+        color: var(--gray-text-light);
+        font-weight: 400;
+        margin-top: 4px;
+      }
+
+      .store-disclaimer {
+        background: var(--aha-red-light);
+        border-left: 4px solid var(--aha-red);
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 32px;
+      }
+
+      .store-disclaimer p {
+        margin: 0;
+        color: var(--gray-text);
+        line-height: 1.7;
+        font-size: 0.9rem;
+      }
+
+      .store-disclaimer strong {
+        color: var(--aha-red);
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 280px;
+        }
+
+        .main-content {
+          padding: 24px;
+        }
+
+        .products-grid {
+          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+          gap: 16px;
+        }
+
+        .product-image-container {
+          height: 180px;
+        }
+
+        .product-name {
+          font-size: 0.85rem;
+        }
+
+        .product-price {
+          font-size: 1rem;
+        }
+
+        .store-container {
+          padding: 16px;
+        }
       }
     </style>
   </head>
   <body>
-    <main>
-      <h2>American Heart Association Guidelines</h2>
+      <div class="app-container">
+      <!-- Sidebar Overlay -->
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
       
-      <div class="search-container">
-        <form id="query-form" autocomplete="off">
-          <input 
-            id="query-input" 
-            name="query" 
-            placeholder="Ask about AHA guidelines, recommendations, or protocols..." 
-            autocomplete="off"
-          />
-          <button type="submit" id="submit-btn">Search</button>
-        </form>
-      </div>
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2 class="sidebar-title">Resources</h2>
+          <p class="sidebar-subtitle">Explore additional support and information</p>
+        </div>
+        
+        <nav class="sidebar-menu">
+          <div class="sidebar-item" id="discussions-item">
+            <div class="sidebar-item-icon">💬</div>
+            <h3 class="sidebar-item-title">Discussions</h3>
+            <p class="sidebar-item-desc">Join conversations with healthcare professionals and patients</p>
+          </div>
+          
+          <div class="sidebar-item" id="videos-item">
+            <div class="sidebar-item-icon">📹</div>
+            <h3 class="sidebar-item-title">Videos</h3>
+            <p class="sidebar-item-desc">Access educational videos and tutorials</p>
+          </div>
+          
+          <div class="sidebar-item" id="support-groups-item">
+            <div class="sidebar-item-icon">🤝</div>
+            <h3 class="sidebar-item-title">Support Groups Nearby</h3>
+            <p class="sidebar-item-desc">Find local support groups and community resources</p>
+          </div>
+          
+          <div class="sidebar-item" id="store-item">
+            <div class="sidebar-item-icon">🛒</div>
+            <h3 class="sidebar-item-title">Store</h3>
+            <p class="sidebar-item-desc">Resources and products for heart health</p>
+          </div>
+        </nav>
+      </aside>
 
-      <div id="query-display" class="query-display" style="display: none;">
-        <strong>Query:</strong> <span id="current-query"></span>
-      </div>
+      <div class="main-content">
+        <div class="header">
+          <button type="button" class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle navigation">
+            ☰
+          </button>
+        </div>
+        
+        <div class="search-container">
+          <form id="query-form" autocomplete="off">
+            <input 
+              id="query-input" 
+              name="query" 
+              placeholder="Ask about AHA guidelines, recommendations, or protocols..." 
+              autocomplete="off"
+            />
+            <button type="submit" id="submit-btn">Search</button>
+          </form>
+        </div>
 
-      <div id="results-container" class="results-container">
-        <div class="empty-state">
-          <p>Enter a query to search AHA guidelines and documents.</p>
-          <p style="font-size: 0.85rem; margin-top: 8px;">
-            All responses are based solely on AHA-approved documents and guidelines.
-          </p>
+        <div class="chat-container" id="chat-container">
+          <div id="results-container"></div>
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">❤️</div>
+            <p>Ask me anything about AHA cardiovascular guidelines and recommendations.</p>
+            <p style="font-size: 0.9rem; margin-top: 8px; color: var(--gray-text-light);">
+              All responses are based solely on AHA-approved documents with source citations.
+            </p>
+          </div>
+        </div>
+
+        <div class="chat-input-container">
+          <form id="chat-form" class="chat-input-form" autocomplete="off">
+            <input 
+              id="chat-input" 
+              name="message" 
+              placeholder="Ask about AHA guidelines..." 
+              autocomplete="off"
+            />
+            <button type="submit" id="chat-submit-btn">➤</button>
+          </form>
         </div>
       </div>
-    </main>
+    </div>
 
     <script type="module">
-      const resultsContainer = document.querySelector("#results-container");
-      const queryForm = document.querySelector("#query-form");
-      const queryInput = document.querySelector("#query-input");
-      const submitBtn = document.querySelector("#submit-btn");
-      const queryDisplay = document.querySelector("#query-display");
-      const currentQuerySpan = document.querySelector("#current-query");
+      const chatContainer = document.querySelector("#chat-container");
+      const emptyState = document.querySelector("#empty-state");
+      const chatForm = document.querySelector("#chat-form");
+      const chatInput = document.querySelector("#chat-input");
+      const chatSubmitBtn = document.querySelector("#chat-submit-btn");
+      
+      // Legacy selectors (for backward compatibility)
+      const resultsContainer = chatContainer; // Use chatContainer for results too
+      const queryForm = chatForm;
+      const queryInput = chatInput;
+      const submitBtn = chatSubmitBtn;
 
-      let currentResults = window.openai?.toolOutput?.results ?? [];
-      let currentQuery = window.openai?.toolOutput?.query ?? "";
+      // Sidebar elements
+      const sidebar = document.querySelector("#sidebar");
+      const sidebarToggle = document.querySelector("#sidebar-toggle");
+      const sidebarOverlay = document.querySelector("#sidebar-overlay");
+      
+      // Sidebar items
+      const discussionsItem = document.querySelector("#discussions-item");
+      const videosItem = document.querySelector("#videos-item");
+      const supportGroupsItem = document.querySelector("#support-groups-item");
+      const storeItem = document.querySelector("#store-item");
+      
+      // Verify all sidebar items are found
+      if (!storeItem) {
+        console.error("Store item not found in DOM");
+      }
 
-      const render = () => {
-        if (currentQuery) {
-          queryDisplay.style.display = "block";
-          currentQuerySpan.textContent = currentQuery;
-        } else {
-          queryDisplay.style.display = "none";
+      // Sidebar toggle functionality
+      const toggleSidebar = () => {
+        if (sidebar && sidebarOverlay) {
+          sidebar.classList.toggle("open");
+          sidebarOverlay.classList.toggle("active");
         }
+      };
 
-        if (currentResults.length === 0) {
-          resultsContainer.innerHTML = `
-            <div class="empty-state">
-              <p>Enter a query to search AHA guidelines and documents.</p>
-              <p style="font-size: 0.85rem; margin-top: 8px;">
-                All responses are based solely on AHA-approved documents and guidelines.
-              </p>
-            </div>
-          `;
+      const closeSidebar = () => {
+        if (sidebar && sidebarOverlay) {
+          sidebar.classList.remove("open");
+          sidebarOverlay.classList.remove("active");
+        }
+      };
+
+      // Event listeners for sidebar toggle - use multiple methods to ensure it works
+      const attachSidebarToggle = () => {
+        const btn = document.querySelector("#sidebar-toggle");
+        if (btn) {
+          // Remove any existing listeners by cloning
+          const newBtn = btn.cloneNode(true);
+          btn.parentNode.replaceChild(newBtn, btn);
+          
+          newBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            console.log("Sidebar toggle clicked");
+            toggleSidebar();
+            return false;
+          });
+          
+          // Also try mousedown as backup
+          newBtn.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSidebar();
+            return false;
+          });
+          
+          console.log("Sidebar toggle event listeners attached");
+        } else {
+          console.error("Sidebar toggle button not found!");
+        }
+      };
+      
+      // Try attaching immediately and also on DOMContentLoaded
+      attachSidebarToggle();
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachSidebarToggle);
+      }
+      
+      // Also try after a short delay in case of iframe loading issues
+      setTimeout(attachSidebarToggle, 100);
+      setTimeout(attachSidebarToggle, 500);
+
+      if (sidebarOverlay) {
+        sidebarOverlay.addEventListener("click", closeSidebar);
+      }
+
+      // Close sidebar when clicking on a sidebar item (on mobile)
+      const closeSidebarOnItemClick = () => {
+        if (window.innerWidth <= 768) {
+          closeSidebar();
+        }
+      };
+
+      // Initialize from toolOutput or structuredContent
+      let currentResults = window.openai?.toolOutput?.results ?? 
+                          window.openai?.structuredContent?.results ?? [];
+      let currentQuery = window.openai?.toolOutput?.query ?? 
+                        window.openai?.structuredContent?.query ?? "";
+      let currentAIResponse = window.openai?.toolOutput?.aiResponse ??
+                             window.openai?.structuredContent?.aiResponse ??
+                             null;
+      let lastProcessedMessage = null;
+
+      // Health-related keywords to detect relevant questions
+      const healthKeywords = [
+        'heart', 'cardiac', 'cardiovascular', 'chest pain', 'arrhythmia', 'atrial fibrillation',
+        'heart failure', 'hypertension', 'blood pressure', 'stroke', 'coronary', 'angina',
+        'myocardial', 'infarction', 'tachycardia', 'bradycardia', 'pacemaker', 'defibrillator',
+        'cholesterol', 'lipid', 'aorta', 'valve', 'murmur', 'ecg', 'ekg', 'echocardiogram',
+        'stent', 'bypass', 'surgery', 'medication', 'treatment', 'diagnosis', 'symptom',
+        'guideline', 'recommendation', 'protocol', 'aha', 'american heart association',
+        'patient', 'clinical', 'medical', 'disease', 'condition', 'therapy', 'drug',
+        'blood', 'pulse', 'rhythm', 'beat', 'cardiac arrest', 'heart attack'
+      ];
+
+      // Medical question patterns
+      const medicalQuestionPatterns = [
+        /what (is|are|should|do|does|can|will)/i,
+        /how (to|do|should|can|will)/i,
+        /when (to|should|do|can)/i,
+        /why (should|do|does|is)/i,
+        /(treatment|therapy|medication|diagnosis|symptom|guideline|recommendation)/i
+      ];
+
+      // Check if a message is health-related
+      const isHealthRelated = (text) => {
+        if (!text || typeof text !== 'string') return false;
+        const lowerText = text.toLowerCase();
+        
+        // Check for health keywords
+        const hasHealthKeyword = healthKeywords.some(keyword => 
+          lowerText.includes(keyword.toLowerCase())
+        );
+        
+        // Check for medical question patterns (if it looks like a medical question)
+        const looksLikeMedicalQuestion = medicalQuestionPatterns.some(pattern => 
+          pattern.test(text)
+        ) && (lowerText.length > 20); // Only if it's a substantial question
+        
+        // Also check if it mentions AHA or guidelines explicitly
+        const mentionsAHA = /aha|american heart|guideline|recommendation/i.test(text);
+        
+        return hasHealthKeyword || (looksLikeMedicalQuestion && mentionsAHA) || mentionsAHA;
+      };
+
+      // Extract query from user message
+      const extractQuery = (message) => {
+        if (!message) return null;
+        
+        // If it's a string, use it directly
+        if (typeof message === 'string') {
+          return message.trim();
+        }
+        
+        // If it's an object with content
+        if (message.content) {
+          if (typeof message.content === 'string') {
+            return message.content.trim();
+          }
+          // If content is an array, extract text
+          if (Array.isArray(message.content)) {
+            const textParts = message.content
+              .filter(item => item.type === 'text')
+              .map(item => item.text)
+              .join(' ');
+            return textParts.trim() || null;
+          }
+        }
+        
+        // If it's an object with text
+        if (message.text) {
+          return message.text.trim();
+        }
+        
+        return null;
+      };
+
+      // Process user message - add to chat and trigger search
+      const processUserMessage = async (message) => {
+        const query = extractQuery(message);
+        if (!query || query === lastProcessedMessage) return;
+        
+        // Skip very short queries
+        if (query.trim().length < 3) return;
+        
+        lastProcessedMessage = query;
+        
+        // Add user message to chat
+        chatMessages.push({
+          role: 'user',
+          content: query
+        });
+        renderChat();
+        
+        // Populate chat input if it exists
+        if (chatInput) {
+          chatInput.value = query;
+        }
+        
+        // Remove active state from sidebar
+        [discussionsItem, videosItem, supportGroupsItem, storeItem].forEach(i => {
+          if (i) i.classList.remove("active");
+        });
+        
+        closeSidebar();
+        
+        // Execute the search - sources will appear in widget
+        await callQueryTool(query);
+      };
+
+      // Capture assistant messages from ChatGPT
+      const captureAssistantMessage = (message) => {
+        const content = extractQuery(message);
+        if (!content || content === lastAssistantMessage) return;
+        
+        lastAssistantMessage = content;
+        
+        // Remove any pending assistant message
+        chatMessages = chatMessages.filter(msg => msg.role !== 'assistant' || !msg.pending);
+        
+        // Add assistant message with sources
+        chatMessages.push({
+          role: 'assistant',
+          content: content,
+          sources: currentResults,
+          pending: false
+        });
+        
+        renderChat();
+      };
+
+      // Track processed messages to prevent duplicates
+      const processedMessageIds = new Set();
+      
+      // Listen for user and assistant messages from ChatGPT
+      const checkForMessages = () => {
+        // Only check if window.openai exists and is accessible
+        if (!window.openai) {
           return;
         }
 
-        resultsContainer.innerHTML = currentResults
-          .map(
-            (result) => `
-            <div class="result-item">
-              <div class="result-title">${escapeHtml(result.title || "Document Excerpt")}</div>
-              <div class="result-content">${escapeHtml(result.content || result.text || "")}</div>
-              ${result.source ? `<div class="result-source">Source: ${escapeHtml(result.source)}</div>` : ""}
+        try {
+          // Check messages array for all messages
+          if (window.openai.messages && Array.isArray(window.openai.messages)) {
+            const allMessages = window.openai.messages;
+            
+            // Process user messages
+            const userMessages = allMessages.filter(msg => 
+              msg && (msg.role === 'user' || msg.type === 'user')
+            );
+            if (userMessages.length > 0) {
+              const latestUserMessage = userMessages[userMessages.length - 1];
+              const query = extractQuery(latestUserMessage);
+              const messageId = query || JSON.stringify(latestUserMessage);
+              
+              if (query && query !== lastProcessedMessage && !processedMessageIds.has(messageId)) {
+                processedMessageIds.add(messageId);
+                // Keep only last 10 processed IDs to prevent memory leak
+                if (processedMessageIds.size > 10) {
+                  const firstId = processedMessageIds.values().next().value;
+                  processedMessageIds.delete(firstId);
+                }
+                processUserMessage(latestUserMessage);
+              }
+            }
+            
+            // Process assistant messages
+            const assistantMessages = allMessages.filter(msg => 
+              msg && (msg.role === 'assistant' || msg.type === 'assistant')
+            );
+            if (assistantMessages.length > 0) {
+              const latestAssistantMessage = assistantMessages[assistantMessages.length - 1];
+              const messageId = JSON.stringify(latestAssistantMessage);
+              
+              if (!processedMessageIds.has(messageId)) {
+                processedMessageIds.add(messageId);
+                if (processedMessageIds.size > 10) {
+                  const firstId = processedMessageIds.values().next().value;
+                  processedMessageIds.delete(firstId);
+                }
+                captureAssistantMessage(latestAssistantMessage);
+              }
+            }
+          }
+        } catch (error) {
+          // Silently ignore errors from accessing window.openai (may be blocked by extensions)
+          console.debug("Could not check messages:", error);
+        }
+      };
+
+      // Listen for message updates
+      const handleMessageUpdate = (event) => {
+        if (event.detail?.message) {
+          const msg = event.detail.message;
+          if (msg.role === 'user' || msg.type === 'user') {
+            processUserMessage(msg);
+          } else if (msg.role === 'assistant' || msg.type === 'assistant') {
+            captureAssistantMessage(msg);
+          }
+        } else if (event.detail?.messages) {
+          const allMessages = event.detail.messages;
+          const userMessages = allMessages.filter(msg => 
+            msg.role === 'user' || msg.type === 'user'
+          );
+          if (userMessages.length > 0) {
+            processUserMessage(userMessages[userMessages.length - 1]);
+          }
+          const assistantMessages = allMessages.filter(msg => 
+            msg.role === 'assistant' || msg.type === 'assistant'
+          );
+          if (assistantMessages.length > 0) {
+            captureAssistantMessage(assistantMessages[assistantMessages.length - 1]);
+          }
+        } else {
+          // Re-check for messages
+          checkForMessages();
+        }
+      };
+
+      // Listen for various OpenAI events
+      window.addEventListener("openai:message", handleMessageUpdate, { passive: true });
+      window.addEventListener("openai:user_message", handleMessageUpdate, { passive: true });
+      window.addEventListener("openai:messages", handleMessageUpdate, { passive: true });
+
+      // Render chat messages natively in the widget
+      const renderChat = () => {
+        if (!chatContainer) {
+          console.error("chatContainer not found");
+          return;
+        }
+
+        // Show empty state if no messages
+        if (chatMessages.length === 0 && currentResults.length === 0) {
+          if (emptyState) {
+            emptyState.style.display = 'block';
+          } else {
+            chatContainer.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-icon">❤️</div>
+                <p>Ask me anything about AHA cardiovascular guidelines and recommendations.</p>
+                <p style="font-size: 0.9rem; margin-top: 8px; color: var(--gray-text-light);">
+                  All responses are based solely on AHA-approved documents with source citations.
+                </p>
+              </div>
+            `;
+          }
+          return;
+        }
+
+        // Hide empty state
+        if (emptyState) {
+          emptyState.style.display = 'none';
+        }
+
+        // Render chat messages - use safer string building
+        let messagesHtml = '';
+        try {
+          messagesHtml = chatMessages.map((msg) => {
+            if (!msg || !msg.role) return '';
+            
+            if (msg.role === 'user') {
+              const content = escapeHtml(msg.content || '');
+              return '<div class="chat-message user"><div class="message-bubble"><div class="message-content">' + content + '</div></div></div>';
+            } else if (msg.role === 'assistant') {
+              // Add citation bubbles for sources referenced in the message
+              const sources = msg.sources || currentResults || [];
+              let citationBubbles = '';
+              
+              if (sources.length > 0) {
+                citationBubbles = sources.map((source, idx) => {
+                  if (!source) return '';
+                  const citationNum = source.citationNumber || (idx + 1);
+                  const fullCitation = escapeHtml(source.fullCitation || source.title || '');
+                  return '<span class="citation-bubble" data-citation="' + citationNum + '" title="' + fullCitation + '">[' + citationNum + ']</span>';
+                }).filter(b => b).join('');
+              }
+
+              const content = formatAIResponse(msg.content || '');
+              let citationsSection = '';
+              if (citationBubbles) {
+                citationsSection = '<div class="citations-section" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(200, 16, 46, 0.1);"><div class="citations-title" style="font-size: 0.75rem; margin-bottom: 8px; color: var(--aha-red); font-weight: 600;">📚 Sources</div><div class="citation-list">' + citationBubbles + '</div></div>';
+              }
+              
+              return '<div class="chat-message assistant"><div class="message-bubble"><div class="message-content">' + content + '</div>' + citationsSection + '</div></div>';
+            }
+            return '';
+          }).filter(html => html && html.trim()).join('');
+        } catch (error) {
+          console.error("Error rendering chat messages:", error);
+          messagesHtml = '<div class="empty-state"><p>Error rendering messages. Please refresh.</p></div>';
+        }
+
+        // Only update if we have messages to show
+        try {
+          if (messagesHtml) {
+            chatContainer.innerHTML = messagesHtml;
+          } else if (chatMessages.length > 0) {
+            // Fallback if messages exist but HTML is empty
+            chatContainer.innerHTML = '<div class="empty-state"><p>Loading...</p></div>';
+          }
+        } catch (error) {
+          console.error("Error setting chatContainer.innerHTML:", error);
+          chatContainer.innerHTML = '<div class="empty-state"><p>Error displaying messages. Please refresh.</p></div>';
+        }
+
+        // Scroll to bottom
+        setTimeout(() => {
+          if (chatContainer) {
+            try {
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (e) {
+              console.error("Error scrolling:", e);
+            }
+          }
+        }, 100);
+      };
+
+      // Render sources list (alternative view)
+      const renderSources = () => {
+        if (currentResults.length === 0) return '';
+
+        return `
+          <div style="padding: 20px 0; margin-top: 24px; border-top: 2px solid var(--aha-red-light);">
+            <h3 style="color: var(--aha-red); margin-bottom: 20px; font-size: 1.1rem; font-weight: 600;">
+              📚 AHA Guideline Sources
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              ${currentResults.map((result, index) => {
+                const citationNum = result.citationNumber || (index + 1);
+                const fullCitation = result.fullCitation || `${result.title} - ${result.source} (${result.year})`;
+                
+                return `
+                  <div class="result-item" style="position: relative;">
+                    <div style="position: absolute; top: 16px; left: 16px; background: var(--aha-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem;">
+                      [${citationNum}]
+                    </div>
+                    <div style="margin-left: 44px;">
+                      <div class="result-title" style="margin-bottom: 8px;">${escapeHtml(result.title || "AHA Guideline")}</div>
+                      <div class="result-content" style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px;">
+                        ${escapeHtml(result.content || result.text || "").substring(0, 200)}${(result.content || result.text || "").length > 200 ? '...' : ''}
+                      </div>
+                      <div class="result-source" style="margin-top: 12px;">
+                        <div class="result-source-label">Source</div>
+                        <div class="result-source-text">${escapeHtml(fullCitation)}</div>
+                        ${result.category ? `<div style="font-size: 0.8rem; color: var(--gray-text-light); margin-top: 4px;">Category: ${escapeHtml(result.category)}</div>` : ''}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
             </div>
-          `
-          )
-          .join("");
+          </div>
+        `;
+      };
+
+      const render = () => {
+        renderChat();
+        // Append sources after chat messages if we have results
+        if (currentResults.length > 0 && chatContainer) {
+          const sourcesHtml = renderSources();
+          if (sourcesHtml) {
+            // Only append if we have messages, otherwise replace
+            if (chatMessages.length > 0) {
+              chatContainer.innerHTML += sourcesHtml;
+            } else {
+              chatContainer.innerHTML = sourcesHtml;
+            }
+          }
+        }
       };
 
       const escapeHtml = (text) => {
+        if (!text) return '';
         const div = document.createElement("div");
         div.textContent = text;
         return div.innerHTML;
       };
 
+      // Format AI response - convert to HTML and preserve paragraphs
+      const formatAIResponse = (response) => {
+        if (!response) return '';
+        // If it's already HTML, return it (but sanitized)
+        if (typeof response === 'string') {
+          // Convert newlines to paragraphs
+          const paragraphs = response.split('\n\n').filter(p => p.trim());
+          return paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
+        }
+        // If it's an array of content blocks
+        if (Array.isArray(response)) {
+          return response.map(block => {
+            if (block.type === 'text') {
+              const paragraphs = block.text.split('\n\n').filter(p => p.trim());
+              return paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
+            }
+            return '';
+          }).join('');
+        }
+        return escapeHtml(String(response));
+      };
+
       const updateFromResponse = (response) => {
-        if (response?.structuredContent) {
-          if (response.structuredContent.results) {
-            currentResults = response.structuredContent.results;
-          }
-          if (response.structuredContent.query) {
-            currentQuery = response.structuredContent.query;
-          }
+        // Extract sources from structuredContent
+        if (response?.structuredContent?.results) {
+          currentResults = response.structuredContent.results;
           render();
         }
       };
 
       const handleSetGlobals = (event) => {
         const globals = event.detail?.globals;
-        if (!globals?.toolOutput) return;
-
-        if (globals.toolOutput.results) {
+        
+        // Extract results from toolOutput or structuredContent
+        if (globals?.toolOutput?.results) {
           currentResults = globals.toolOutput.results;
+          render();
+        } else if (globals?.toolOutput?.structuredContent?.results) {
+          currentResults = globals.toolOutput.structuredContent.results;
+          render();
+        } else if (globals?.structuredContent?.results) {
+          currentResults = globals.structuredContent.results;
+          render();
         }
-        if (globals.toolOutput.query) {
-          currentQuery = globals.toolOutput.query;
-        }
-        render();
       };
 
       window.addEventListener("openai:set_globals", handleSetGlobals, {
         passive: true,
       });
 
+      // Listen for tool result events
+      const handleToolResult = (event) => {
+        const result = event.detail?.result || event.detail;
+        if (result?.structuredContent) {
+          updateFromResponse(result);
+        }
+      };
+
+      window.addEventListener("openai:tool_result", handleToolResult, {
+        passive: true,
+      });
+
+      window.addEventListener("openai:tool_output", handleToolResult, {
+        passive: true,
+      });
+
+      // Listen for tool invocation events to capture queries
+      const handleToolInvocation = (event) => {
+        const toolName = event.detail?.toolName;
+        const args = event.detail?.args;
+        
+        if (toolName === "query_aha_guidelines" && args?.query) {
+          const query = args.query.trim();
+          if (query && query !== lastProcessedMessage) {
+            lastProcessedMessage = query;
+            queryInput.value = query;
+            // Remove active state from sidebar
+            [discussionsItem, videosItem, supportGroupsItem, storeItem].forEach(i => {
+              if (i) i.classList.remove("active");
+            });
+            // The tool result will come through handleSetGlobals, so we just update the UI here
+            // This ensures the search box shows the query immediately
+          }
+        }
+      };
+
+      window.addEventListener("openai:tool_invocation", handleToolInvocation, {
+        passive: true,
+      });
+
+      // Also listen for tool invocation start (before execution)
+      window.addEventListener("openai:tool_invoking", (event) => {
+        const toolName = event.detail?.toolName;
+        const args = event.detail?.args;
+        
+        if (toolName === "query_aha_guidelines" && args?.query) {
+          const query = args.query.trim();
+          if (query && query !== lastProcessedMessage) {
+            lastProcessedMessage = query;
+            queryInput.value = query;
+            // Remove active state from sidebar
+            [discussionsItem, videosItem, supportGroupsItem, storeItem].forEach(i => {
+              if (i) i.classList.remove("active");
+            });
+            // Show loading state immediately
+            showLoading();
+          }
+        }
+      }, { passive: true });
+
       const showLoading = () => {
-        resultsContainer.innerHTML = '<div class="loading">Searching AHA guidelines...</div>';
-        submitBtn.disabled = true;
+        // Update pending assistant message instead of clearing
+        const lastMsg = chatMessages[chatMessages.length - 1];
+        if (lastMsg && lastMsg.pending) {
+          lastMsg.content = 'Searching AHA guidelines...';
+          renderChat();
+        }
+        if (chatSubmitBtn) {
+          chatSubmitBtn.disabled = true;
+        }
       };
 
       const hideLoading = () => {
-        submitBtn.disabled = false;
+        if (chatSubmitBtn) {
+          chatSubmitBtn.disabled = false;
+        }
       };
 
       const callQueryTool = async (query) => {
         if (window.openai?.callTool) {
           showLoading();
           try {
-            const response = await window.openai.callTool("query_aha_guidelines", { query });
+            // Add timeout to prevent hanging (10 seconds)
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error("Request timeout - the search is taking too long. Please try asking your question in the ChatGPT chat instead.")), 10000)
+            );
+            
+            const toolCallPromise = window.openai.callTool("query_aha_guidelines", { query });
+            const response = await Promise.race([toolCallPromise, timeoutPromise]);
+            
             updateFromResponse(response);
           } catch (error) {
             console.error("Error calling tool:", error);
-            resultsContainer.innerHTML = `
-              <div class="empty-state">
-                <p style="color: #c8102e;">Error: ${escapeHtml(error.message || "Failed to query guidelines")}</p>
-              </div>
-            `;
+            const errorMessage = error.message || "Failed to query guidelines";
+            // Update pending assistant message with error
+            const lastMsg = chatMessages[chatMessages.length - 1];
+            if (lastMsg && lastMsg.pending) {
+              lastMsg.content = `Sorry, I encountered an error: ${errorMessage}. Please try asking your question in the ChatGPT chat instead.`;
+              lastMsg.pending = false;
+              renderChat();
+            }
           } finally {
             hideLoading();
           }
           return;
         }
 
-        // Fallback for local testing
+        // Fallback for local testing when tool is not available
         showLoading();
         setTimeout(() => {
           currentResults = [
             {
               title: "Sample Result",
               content: "This is a sample result. In production, this would come from the AHA guidelines database.",
-              source: "AHA Guidelines Database"
+              source: "AHA Guidelines Database",
+              year: new Date().getFullYear(),
+              citationNumber: 1
             }
           ];
-          currentQuery = query;
+          // Update pending assistant message
+          const lastMsg = chatMessages[chatMessages.length - 1];
+          if (lastMsg && lastMsg.pending) {
+            lastMsg.content = "I found sample AHA guideline information. In production, this would show real guidelines from the database.";
+            lastMsg.sources = currentResults;
+            lastMsg.pending = false;
+          }
           render();
           hideLoading();
         }, 500);
       };
 
-      queryForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const query = queryInput.value.trim();
-        if (!query) return;
+      // Sidebar item click handlers
+      const handleSidebarClick = (item, title) => {
+        // Remove active class from all items
+        [discussionsItem, videosItem, supportGroupsItem, storeItem].forEach(i => {
+          i.classList.remove("active");
+        });
+        
+        // Add active class to clicked item
+        item.classList.add("active");
+        
+        // Here you would typically navigate to the appropriate section or make an API call
+        console.log(`Clicked: ${title}`);
+        
+        // Special handling for Store tab
+        if (title === "Store") {
+          showStoreContent();
+          return;
+        }
+        
+        // For now, show a message in the results area
+        resultsContainer.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">${item.querySelector(".sidebar-item-icon").textContent}</div>
+            <p><strong>${title}</strong></p>
+            <p style="font-size: 0.9rem; margin-top: 8px;">
+              ${item.querySelector(".sidebar-item-desc").textContent}
+            </p>
+            <p style="font-size: 0.85rem; margin-top: 12px; opacity: 0.7;">
+              This feature will be available soon.
+            </p>
+          </div>
+        `;
+      };
 
-        await callQueryTool(query);
-        queryInput.value = "";
+      // Product catalog data - Heart health products from Amazon
+      // Add products using Amazon SiteStripe links and images
+      // Format: { name: "Product Name", price: "$XX.XX" or "Check price", url: "Full Amazon URL from SiteStripe", image: "Image URL from SiteStripe" }
+      const heartHealthProducts = [
+        // Blood Pressure Monitors
+        // { name: "Omron 10 Series BP7450 Upper Arm Monitor", price: "$79.99", url: "https://www.amazon.com/dp/B09KQH8W7D?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Omron Platinum BP5450 Wireless Monitor", price: "$99.99", url: "https://www.amazon.com/dp/B07ZQ7H4KX?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Omron 5 Series BP710N Upper Arm Monitor", price: "$49.99", url: "https://www.amazon.com/dp/B00BPQ7Q1O?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Withings BPM Connect Smart Monitor", price: "$89.95", url: "https://www.amazon.com/dp/B07F1Z5J7H?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        
+        // Heart Rate & ECG Monitors
+        // { name: "KardiaMobile 6L Personal ECG Monitor", price: "$129.00", url: "https://www.amazon.com/dp/B08XWZXT1K?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Fitbit Charge 6 Fitness Tracker", price: "$159.95", url: "https://www.amazon.com/dp/B0CHX1W1XY?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Garmin Vivosmart 5 Activity Tracker", price: "$149.99", url: "https://www.amazon.com/dp/B09V3H75YP?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Pulse Oximeter Fingertip", price: "$19.99", url: "https://www.amazon.com/dp/B08Y2B8V1H?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        
+        // Exercise Equipment
+        // { name: "Sunny Health Recumbent Exercise Bike", price: "$299.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Resistance Bands Set (5-Piece)", price: "$24.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Premium Yoga Mat with Carrying Strap", price: "$29.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Adjustable Walking Poles (Pair)", price: "$39.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        
+        // Medication Management
+        // { name: "Weekly Pill Organizer with Alarm", price: "$24.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "28-Day Monthly Pill Organizer", price: "$19.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "7-Day AM/PM Pill Box (4-Pack)", price: "$12.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Smart Pill Dispenser with App", price: "$199.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        
+        // Nutrition & Supplements
+        // { name: "Omega-3 Fish Oil Supplements (120ct)", price: "$24.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "CoQ10 Coenzyme Q10 (100mg, 120ct)", price: "$29.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Portion Control Plates (Set of 4)", price: "$19.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Low Sodium Seasoning Blend (6-Pack)", price: "$16.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        
+        // Books & Education
+        // { name: "Prevent and Reverse Heart Disease", price: "$16.99", url: "https://www.amazon.com/dp/B001G8W5K6?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "The Heart Healthy Cookbook", price: "$18.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Living Well with Heart Disease", price: "$15.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "AHA Complete Guide to Women's Heart Health", price: "$14.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        
+        // Emergency & Safety
+        // { name: "Medical ID Bracelet - Heart Condition", price: "$24.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Medical Alert Necklace Pendant", price: "$19.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Emergency Contact Wallet Card", price: "$9.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Medical Alert System with Fall Detection", price: "$29.99/mo", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        
+        // Stress Management
+        // { name: "Weighted Blanket (15 lbs, Queen)", price: "$49.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Essential Oil Diffuser with Timer", price: "$29.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Meditation Cushion Set", price: "$39.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." },
+        // { name: "Digital Body Weight Scale", price: "$34.99", url: "https://www.amazon.com/dp/...?tag=YOUR_TAG", image: "https://m.media-amazon.com/images/I/..." }
+        
+        // ADD YOUR PRODUCTS HERE - Uncomment and fill in the template below:
+        // { name: "Product Name", price: "$XX.XX", url: "Full Amazon URL from SiteStripe", image: "Image URL from SiteStripe" },
+        
+        // Heart Health Products
+        { name: "Digital Kitchen Scale", price: "Check price", url: "https://amzn.to/4ilzm1q", image: "https://m.media-amazon.com/images/I/91YrLTBnMcL._SL1500_.jpg" },
+        { name: "High Density Foam Roller", price: "Check price", url: "https://amzn.to/48gx8Md", image: "https://m.media-amazon.com/images/I/719fCtAm+hL._AC_SL1500_.jpg" },
+        { name: "Heart Healthy Cookbook", price: "Check price", url: "https://amzn.to/4oiSvlQ", image: "https://m.media-amazon.com/images/I/71nujH4E9BL._SL1293_.jpg" },
+      ];
+
+      // Store content with visual product catalog
+      const showStoreContent = () => {
+        // Hide empty state when showing store
+        const emptyState = document.querySelector("#empty-state");
+        if (emptyState) {
+          emptyState.style.display = "none";
+        }
+        
+        if (!resultsContainer) {
+          console.error("resultsContainer not found");
+          return;
+        }
+        
+        if (heartHealthProducts.length === 0) {
+          resultsContainer.innerHTML = `
+            <div class="store-container">
+              <div class="store-header">
+                <h2 class="store-title">🛒 Heart Health Store</h2>
+                <p class="store-subtitle">Products to support your cardiovascular health journey</p>
+              </div>
+              <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <p><strong>No products yet</strong></p>
+                <p style="font-size: 0.9rem; margin-top: 8px;">
+                  Add products using Amazon SiteStripe links and images.
+                  <br>See the code comments in the heartHealthProducts array for instructions.
+                </p>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const placeholderSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f0f0f0' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-family='Arial' font-size='14'%3EView on Amazon%3C/text%3E%3C/svg%3E`;
+        
+        const productsHtml = heartHealthProducts.map(product => {
+          // Use provided URL or construct from ASIN if URL not provided (backward compatibility)
+          const amazonUrl = product.url || (product.asin ? `https://www.amazon.com/dp/${product.asin}` : '#');
+          // Use provided image or placeholder
+          const imageUrl = product.image || placeholderSvg;
+          const price = product.price || "Check price";
+          
+          return `
+            <a href="${amazonUrl}" target="_blank" rel="noopener noreferrer" class="product-card">
+              <div class="product-image-container">
+                <img src="${imageUrl}" alt="${escapeHtml(product.name)}" class="product-image" 
+                     onerror="this.src='${placeholderSvg}'"
+                     loading="lazy">
+              </div>
+              <div class="product-info">
+                <div class="product-name">${escapeHtml(product.name)}</div>
+                <div class="product-price">${price}</div>
+                ${price.includes("Check") ? '<div class="product-price-label">Click to view on Amazon</div>' : ''}
+              </div>
+            </a>
+          `;
+        }).join('');
+
+        resultsContainer.innerHTML = `
+          <div class="store-container">
+            <div class="store-header">
+              <h2 class="store-title">🛒 Heart Health Store</h2>
+              <p class="store-subtitle">Products to support your cardiovascular health journey</p>
+            </div>
+            
+            <div class="products-grid">
+              ${productsHtml}
+            </div>
+
+            <div class="store-disclaimer">
+              <p>
+                <strong>Important Note:</strong> 
+                Always consult with your healthcare provider before purchasing medical devices or 
+                starting new supplements. The products listed are for informational purposes only 
+                and should not replace professional medical advice. Some products may require 
+                prescription or medical supervision. Prices are approximate and may vary on Amazon.
+              </p>
+            </div>
+          </div>
+        `;
+      };
+
+      videosItem.addEventListener("click", () => {
+        handleSidebarClick(videosItem, "Videos");
+        closeSidebarOnItemClick();
       });
+
+      discussionsItem.addEventListener("click", () => {
+        handleSidebarClick(discussionsItem, "Discussions");
+        closeSidebarOnItemClick();
+      });
+
+      supportGroupsItem.addEventListener("click", () => {
+        handleSidebarClick(supportGroupsItem, "Support Groups Nearby");
+        closeSidebarOnItemClick();
+      });
+
+      if (storeItem) {
+        storeItem.addEventListener("click", () => {
+          handleSidebarClick(storeItem, "Store");
+          closeSidebarOnItemClick();
+        });
+      } else {
+        console.error("Cannot add event listener to storeItem - element not found");
+      }
+
+      // Chat form handler
+      if (chatForm) {
+        chatForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          
+          try {
+            const query = chatInput && chatInput.value ? chatInput.value.trim() : '';
+            if (!query) return;
+
+            // Ensure chatContainer exists before rendering
+            if (!chatContainer) {
+              console.error("chatContainer not found - cannot render chat");
+              return;
+            }
+
+            // Add user message to chat
+            chatMessages.push({
+              role: 'user',
+              content: query
+            });
+            
+            try {
+              renderChat();
+            } catch (renderError) {
+              console.error("Error rendering chat:", renderError);
+              chatContainer.innerHTML = '<div class="empty-state"><p>Error displaying message. Please refresh.</p></div>';
+            }
+
+            // Add pending assistant message
+            chatMessages.push({
+              role: 'assistant',
+              content: 'Thinking...',
+              sources: [],
+              pending: true
+            });
+            
+            try {
+              renderChat();
+            } catch (renderError) {
+              console.error("Error rendering pending message:", renderError);
+            }
+
+            // Clear input
+            if (chatInput) {
+              chatInput.value = '';
+            }
+
+            // Remove active state from sidebar
+            [discussionsItem, videosItem, supportGroupsItem, storeItem].forEach(i => {
+              if (i) i.classList.remove("active");
+            });
+            
+            closeSidebar();
+
+            // Call the tool
+            if (window.openai?.callTool) {
+              try {
+                await callQueryTool(query);
+              } catch (error) {
+                console.error("Tool call failed:", error);
+                // Update pending message with error
+                const lastMsg = chatMessages[chatMessages.length - 1];
+                if (lastMsg && lastMsg.pending) {
+                  lastMsg.content = `Sorry, I encountered an error: ${error.message || 'Unknown error'}. Please try asking your question in the ChatGPT chat instead.`;
+                  lastMsg.pending = false;
+                  try {
+                    renderChat();
+                  } catch (e) {
+                    console.error("Error rendering error message:", e);
+                  }
+                }
+              }
+            } else {
+              // No tool available - update pending message
+              const lastMsg = chatMessages[chatMessages.length - 1];
+              if (lastMsg && lastMsg.pending) {
+                lastMsg.content = 'Please ask your question in the ChatGPT chat to search AHA guidelines.';
+                lastMsg.pending = false;
+                try {
+                  renderChat();
+                } catch (e) {
+                  console.error("Error rendering no-tool message:", e);
+                }
+              }
+            }
+          } catch (error) {
+            console.error("Error in form submission:", error);
+            if (chatContainer) {
+              chatContainer.innerHTML = '<div class="empty-state"><p>An error occurred. Please refresh the page.</p></div>';
+            }
+          }
+        });
+      }
+
+      // Keep old form handler for backward compatibility (but it's hidden)
+      if (queryForm) {
+        queryForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const query = queryInput.value.trim();
+          if (!query) return;
+          
+          // Redirect to chat input
+          if (chatInput) {
+            chatInput.value = query;
+            chatForm.dispatchEvent(new Event('submit'));
+          }
+        });
+      }
 
       // Initialize with any existing data
       render();
+
+      // Check for user messages on load
+      checkForUserMessages();
+
+      // Debounce function to prevent rapid-fire checks
+      let lastCheckTime = 0;
+      const debouncedCheck = () => {
+        const now = Date.now();
+        if (now - lastCheckTime < 2000) {
+          return; // Skip if checked within last 2 seconds
+        }
+        lastCheckTime = now;
+        try {
+          checkForMessages();
+        } catch (error) {
+          // Silently ignore errors to prevent console spam
+        }
+      };
+
+      // Set up periodic check for new messages (reduced frequency to prevent spam)
+      // Check every 3 seconds instead of 300ms to reduce load and prevent blocking
+      let messageCheckInterval = setInterval(debouncedCheck, 3000);
+
+      // Clean up interval when page unloads
+      window.addEventListener('beforeunload', () => {
+        if (messageCheckInterval) {
+          clearInterval(messageCheckInterval);
+        }
+      });
     </script>
   </body>
 </html>
-
-
-
-

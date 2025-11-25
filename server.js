@@ -4,7 +4,36 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 
-const ahaHtml = readFileSync("public/aha-widget.html", "utf8");
+// Helper function to load widget HTML (reloaded on each request for live updates)
+const loadWidgetHtml = () => {
+  try {
+    return readFileSync("public/aha-widget.html", "utf8");
+  } catch (error) {
+    console.error("Error loading widget HTML:", error.message);
+    return "<html><body><p>Error loading widget HTML</p></body></html>";
+  }
+};
+
+// Helper function to get AHA logo URL or data URI
+// For ChatGPT connectors, a publicly accessible URL is preferred over data URI
+const getAHALogoUrl = (baseUrl = "http://localhost:8787") => {
+  try {
+    // Try PNG first (official logo)
+    if (existsSync("public/AHA Logo.png")) {
+      // Return URL instead of data URI - ChatGPT prefers URLs for logos
+      return `${baseUrl}/public/AHA%20Logo.png`;
+    }
+    // Fallback to SVG if PNG doesn't exist
+    if (existsSync("public/aha-logo.svg")) {
+      return `${baseUrl}/public/aha-logo.svg`;
+    }
+    console.warn("Could not find AHA logo file");
+    return null;
+  } catch (error) {
+    console.warn("Could not load AHA logo:", error.message);
+    return null;
+  }
+};
 
 // Document storage for AHA guidelines
 class AHADocumentStore {
@@ -156,27 +185,53 @@ const queryInputSchema = {
   query: z.string().min(1, "Query cannot be empty"),
 };
 
-const replyWithResults = (query, results, message) => ({
-  content: message ? [{ type: "text", text: message }] : [],
-  structuredContent: {
-    query: query,
-    results: results.map(doc => ({
-      title: doc.title,
-      content: doc.content,
-      source: `${doc.source} (${doc.year})`,
-      category: doc.category,
-      id: doc.id
-    }))
-  },
-});
+const replyWithResults = (query, results, message) => {
+  // Return content for ChatGPT to respond normally
+  // The widget will display sources with citation numbers
+  return {
+    content: [{
+      type: "text",
+      text: `I found ${results.length} relevant AHA guideline${results.length > 1 ? 's' : ''}. See the app widget for source citations [1-${results.length}].`
+    }],
+    structuredContent: {
+      query: query,
+      results: results.map((doc, index) => ({
+        title: doc.title,
+        content: doc.content,
+        source: doc.source,
+        year: doc.year,
+        category: doc.category,
+        id: doc.id,
+        citationNumber: index + 1,
+        citation: `${doc.source} (${doc.year})`,
+        fullCitation: `${doc.title} - ${doc.source} (${doc.year})`
+      }))
+    },
+  };
+};
 
-function createAHAServer() {
+function createAHAServer(baseUrl = "http://localhost:8787") {
   const server = new McpServer({ 
     name: "aha-guidelines-app", 
-    version: "0.1.0" 
+    version: "0.1.0",
+    // Add server-level metadata to suppress text responses
+    _meta: {
+      "openai/suppressTextResponse": true
+    }
   });
 
-  // Register the UI widget resource
+  // Load files fresh on each request (allows live updates without restart)
+  const ahaHtml = loadWidgetHtml();
+  const ahaLogoUrl = getAHALogoUrl(baseUrl);
+  
+  // Log logo URL for debugging
+  if (ahaLogoUrl) {
+    console.log(`AHA Logo URL: ${ahaLogoUrl}`);
+  } else {
+    console.warn("AHA Logo URL not found - using default icon");
+  }
+
+  // Register the UI widget resource (for tool output)
   server.registerResource(
     "aha-widget",
     "ui://widget/aha.html",
@@ -187,7 +242,36 @@ function createAHAServer() {
           uri: "ui://widget/aha.html",
           mimeType: "text/html+skybridge",
           text: ahaHtml,
-          _meta: { "openai/widgetPrefersBorder": true },
+          _meta: { 
+            "openai/widgetPrefersBorder": true,
+            ...(ahaLogoUrl && { "openai/emblem": ahaLogoUrl })
+          },
+        },
+      ],
+    })
+  );
+
+  // Register as an app-level resource to appear under the prompt bar
+  server.registerResource(
+    "aha-app",
+    "ui://app/aha.html",
+    {
+      name: "AHA Guidelines",
+      description: "American Heart Association Guidelines - Search evidence-based cardiovascular guidelines and recommendations"
+    },
+    async () => ({
+      contents: [
+        {
+          uri: "ui://app/aha.html",
+          mimeType: "text/html+skybridge",
+          text: ahaHtml,
+          _meta: { 
+            "openai/widgetPrefersBorder": true,
+            "openai/app": true,
+            "openai/appName": "AHA Guidelines",
+            "openai/appDescription": "Search evidence-based cardiovascular guidelines and recommendations",
+            ...(ahaLogoUrl && { "openai/emblem": ahaLogoUrl })
+          },
         },
       ],
     })
@@ -198,12 +282,15 @@ function createAHAServer() {
     "query_aha_guidelines",
     {
       title: "Query AHA Guidelines",
-      description: "Searches American Heart Association guidelines, documents, and recommendations. Returns only information from AHA-approved sources. Use this tool to answer questions about cardiovascular guidelines, treatment protocols, and clinical recommendations.",
+      description: `Searches American Heart Association guidelines, documents, and recommendations. Returns only information from AHA-approved sources.
+
+When this tool is invoked, generate a thoughtful, comprehensive response based on the AHA guidelines found. Your response will appear in the chat as normal. The app widget will display the source citations that correspond to your response. Include inline citations in your response using format [1], [2], etc. to reference the sources shown in the widget.`,
       inputSchema: queryInputSchema,
       _meta: {
         "openai/outputTemplate": "ui://widget/aha.html",
         "openai/toolInvocation/invoking": "Searching AHA guidelines...",
-        "openai/toolInvocation/invoked": "Found relevant AHA guidelines",
+        "openai/toolInvocation/invoked": "Response displayed in widget",
+        ...(ahaLogoUrl && { "openai/icon": ahaLogoUrl })
       },
     },
     async (args) => {
@@ -305,13 +392,52 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
 
+  // Serve static files from public directory
+  if (req.method === "GET" && url.pathname.startsWith("/public/")) {
+    try {
+      // Decode URL-encoded path (handles spaces like %20)
+      const decodedPath = decodeURIComponent(url.pathname.slice(1)); // Remove leading slash and decode
+      if (existsSync(decodedPath)) {
+        const fileContent = readFileSync(decodedPath);
+        const ext = url.pathname.split(".").pop().toLowerCase();
+        const contentType = {
+          svg: "image/svg+xml",
+          png: "image/png",
+          jpg: "image/jpeg",
+          jpeg: "image/jpeg",
+          webp: "image/webp",
+          html: "text/html",
+          css: "text/css",
+          js: "application/javascript",
+        }[ext] || "application/octet-stream";
+        
+        res.writeHead(200, { 
+          "content-type": contentType,
+          "Access-Control-Allow-Origin": "*",
+          "Cache-Control": "public, max-age=3600", // Cache for 1 hour
+        });
+        res.end(fileContent);
+        return;
+      }
+    } catch (error) {
+      console.error("Error serving static file:", error);
+    }
+    res.writeHead(404).end("Not Found");
+    return;
+  }
+
   const MCP_METHODS = new Set(["POST", "GET", "DELETE"]);
 
   if (url.pathname === MCP_PATH && req.method && MCP_METHODS.has(req.method)) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
 
-    const server = createAHAServer();
+    // Determine base URL from request
+    const protocol = req.headers['x-forwarded-proto'] || (url.protocol === 'https:' ? 'https' : 'http');
+    const host = req.headers.host || url.host || 'localhost:8787';
+    const baseUrl = `${protocol}://${host}`;
+    
+    const server = createAHAServer(baseUrl);
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined, // stateless mode
       enableJsonResponse: true,

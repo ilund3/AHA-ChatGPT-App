@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- AHA Heart Logo -->
+  <defs>
+    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c8102e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a00d26;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Heart shape -->
+  <path d="M60,95 C40,75 15,55 15,35 C15,25 23,17 33,17 C43,17 50,23 60,35 C70,23 77,17 87,17 C97,17 105,25 105,35 C105,55 80,75 60,95 Z" 
+        fill="url(#heartGradient)" 
+        stroke="#a00d26" 
+        stroke-width="1"/>
+  
+  <!-- Optional: Small torch/flame element (AHA symbol) -->
+  <path d="M60,30 L55,20 L60,25 L65,20 Z" fill="#fff" opacity="0.9"/>
+</svg>
