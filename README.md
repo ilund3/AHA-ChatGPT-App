@@ -1,12 +1,13 @@
 # AHA ChatGPT App
 
-A ChatGPT app for the American Heart Association that provides access to AHA guidelines, documents, and recommendations. All responses are based solely on documents stored in the server, ensuring accuracy and compliance with AHA standards.
+A ChatGPT app for the American Heart Association that provides access to AHA guidelines, documents, and recommendations through a text-based interface. All responses are based solely on documents stored in the MCP server, ensuring accuracy and compliance with AHA standards. The app provides comprehensive text responses with contextual prompting questions to guide conversations.
 
 ## Features
 
 - **Document Storage**: Stores AHA guidelines and documents in a searchable database
 - **Query Tool**: Search and retrieve relevant AHA guidelines based on user queries
-- **Web Component**: Clean, modern UI for displaying search results
+- **Text-Based Responses**: Returns comprehensive information in plain text format (no visual widgets)
+- **Contextual Prompting Questions**: Automatically generates relevant follow-up questions after each response
 - **MCP Server**: Model Context Protocol server that exposes the app to ChatGPT
 
 ## Setup
@@ -45,14 +46,15 @@ A ChatGPT app for the American Heart Association that provides access to AHA gui
 4. Name it "AHA Guidelines" and provide a description
 5. Click **Create**
 
-**Note:** The app is configured to appear under the prompt bar as a native ChatGPT app (using `ui://app/` resource). After connecting, you should see "AHA Guidelines" appear as an app option that you can open directly, not just as a tool that gets triggered automatically.
+**Note:** The app works as a tool that ChatGPT can call automatically when users ask questions about heart health, cardiovascular disease, or AHA guidelines. Responses are provided as plain text with no visual widgets.
 
 ## Adding Documents
 
-The server comes with sample AHA documents. To add your own documents:
+The server comes with AHA website and online information. To add your own documents:
 
-1. **Programmatically**: Use the `add_aha_document` tool through ChatGPT or MCP Inspector
-2. **Code**: Edit `server.js` and add documents to the `initializeSampleDocuments()` method in the `AHADocumentStore` class
+1. **JSON File (Recommended)**: Edit `guidelines.json` and add new document entries
+2. **Programmatically**: Use the `add_aha_document` tool through ChatGPT or MCP Inspector
+3. **Code**: Edit `server.js` and add documents to the `initializeSampleDocuments()` method in the `AHADocumentStore` class
 
 ### Example: Adding a document via code
 
@@ -81,10 +83,9 @@ The current implementation uses an in-memory document store with simple text-bas
 ```
 AHA-ChatGPT-App/
 ├── public/
-│   ├── aha-widget.html    # Web component UI
-│   └── aha-logo.svg       # AHA logo/emblem for widget
-├── server.js              # MCP server with document storage
-├── guidelines.json        # AHA guidelines data (optional, uses sample if missing)
+│   └── aha-logo.svg       # AHA logo (optional, not used in current implementation)
+├── server.js              # MCP server with document storage and prompting logic
+├── guidelines.json        # AHA guidelines data (loaded automatically)
 ├── package.json           # Dependencies
 └── README.md             # This file
 ```
@@ -94,26 +95,26 @@ AHA-ChatGPT-App/
 Once connected to ChatGPT, users can query AHA guidelines:
 
 - "What are the recommendations for heart failure management?"
-- "Tell me about atrial fibrillation guidelines"
-- "What does AHA say about bradycardia treatment?"
+- "Tell me about atrial fibrillation"
+- "What are the warning signs of a heart attack?"
+- "I'm feeling stressed about my heart condition"
 
-All responses will be based solely on documents in the server's knowledge base.
+All responses will be based solely on documents in the server's knowledge base. After each response, the app automatically provides contextual prompting questions such as:
+- "Would you like more information on this topic?"
+- "Would you like me to suggest products or resources to help with [condition]?"
+- "Would you like to see support groups or resources for emotional support nearby?" (for emotional/mental health queries)
+
+These questions help guide the conversation and provide users with next steps.
 
 ## Development
 
-### Updating the Widget After Making Changes
-
-The server automatically reloads widget files (HTML, logo, etc.) on each request, so you typically **don't need to restart** for widget changes:
+### Making Changes
 
 **No Restart Required For:**
-- ✅ Changes to `public/aha-widget.html` (widget UI/styling)
-- ✅ Changes to `public/aha-logo.svg` (logo/emblem)
-- ✅ Changes to `guidelines.json` (document data)
-
-These changes will be picked up automatically on the next request to ChatGPT.
+- ✅ Changes to `guidelines.json` (document data) - The server reloads this file on each request
 
 **Restart Required For:**
-- 🔄 Changes to `server.js` (server logic, tool configuration)
+- 🔄 Changes to `server.js` (server logic, tool configuration, prompting question logic)
 - 🔄 Adding new dependencies in `package.json`
 
 **To Restart the Server:**
@@ -127,9 +128,8 @@ npm run dev
 
 **Refreshing in ChatGPT:**
 After making changes:
-1. If you changed widget HTML/logo: Just trigger the tool again in ChatGPT (it will use the updated files)
-2. If you changed server.js: Restart the server, then ChatGPT should pick up changes on the next tool call
-3. If the widget seems cached: Try closing and reopening the ChatGPT chat or refreshing the page
+1. If you changed `guidelines.json`: Just trigger the tool again in ChatGPT (it will use the updated data)
+2. If you changed `server.js`: Restart the server, then ChatGPT should pick up changes on the next tool call
 
 ### Development Commands
 
